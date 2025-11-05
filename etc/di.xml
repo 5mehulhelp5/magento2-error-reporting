@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright (c) 2025. Volodymyr Hryvinskyi. All rights reserved.
+ * Author: Volodymyr Hryvinskyi <volodymyr@hryvinskyi.com>
+ * GitHub: https://github.com/hryvinskyi
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+
+    <!-- Service Interfaces - Filesystem-based implementations -->
+    <preference for="Hryvinskyi\ErrorReporting\Api\ConfigStorageInterface"
+                type="Hryvinskyi\ErrorReporting\Model\FileConfigStorage"/>
+    <preference for="Hryvinskyi\ErrorReporting\Api\ErrorDataCollectorInterface"
+                type="Hryvinskyi\ErrorReporting\Model\ErrorDataCollector"/>
+    <preference for="Hryvinskyi\ErrorReporting\Api\EmailSenderInterface"
+                type="Hryvinskyi\ErrorReporting\Model\EmailSender"/>
+    <preference for="Hryvinskyi\ErrorReporting\Api\ErrorFilterInterface"
+                type="Hryvinskyi\ErrorReporting\Model\ErrorFilter"/>
+    <preference for="Hryvinskyi\ErrorReporting\Api\ThrottleServiceInterface"
+                type="Hryvinskyi\ErrorReporting\Model\ThrottleService"/>
+    <!-- Default Implementations for config - FileConfig has zero dependencies -->
+    <preference for="Hryvinskyi\ErrorReporting\Api\ConfigInterface" type="Hryvinskyi\ErrorReporting\Model\FileConfig"/>
+    <type name="Hryvinskyi\ErrorReporting\Model\FileConfigStorage">
+        <arguments>
+            <argument name="sourceConfig" xsi:type="object">Hryvinskyi\ErrorReporting\Model\MagentoConfig</argument>
+        </arguments>
+    </type>
+
+    <!-- Plugin Configuration -->
+    <type name="Magento\Framework\App\ExceptionHandler">
+        <plugin name="hryvinskyi_error_reporting_exception_handler"
+                type="Hryvinskyi\ErrorReporting\Plugin\Framework\App\ExceptionHandlerPlugin"
+                sortOrder="10"/>
+    </type>
+
+    <!-- Console Commands -->
+    <type name="Magento\Framework\Console\CommandList">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="hryvinskyi_error_reporting_export_config" xsi:type="object">Hryvinskyi\ErrorReporting\Console\Command\ExportConfig</item>
+            </argument>
+        </arguments>
+    </type>
+</config>

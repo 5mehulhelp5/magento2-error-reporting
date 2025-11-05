@@ -1,0 +1,30 @@
+{
+    "name": "hryvinskyi/magento2-error-reporting",
+    "description": "Advanced error notification system for Magento 2 with spam prevention, and comprehensive error tracking.",
+    "type": "magento2-module",
+    "version": "1.0.0",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Volodymyr Hryvinskyi",
+            "email": "volodymyr@hryvinskyi.com",
+            "homepage": "https://github.com/hryvinskyi"
+        }
+    ],
+    "require": {
+        "php": "^8.1",
+        "hryvinskyi/magento2-base": "*",
+        "magento/framework": "*",
+        "magento/module-store": "*",
+        "magento/module-email": "*",
+        "magento/module-backend": "*"
+    },
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "Hryvinskyi\\ErrorReporting\\": ""
+        }
+    }
+}

@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright (c) 2025. Volodymyr Hryvinskyi. All rights reserved.
+ * Author: Volodymyr Hryvinskyi <volodymyr@hryvinskyi.com>
+ * GitHub: https://github.com/hryvinskyi
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <!-- Auto-export configuration when saved in admin -->
+    <event name="admin_system_config_changed_section_hryvinskyi_error_reporting">
+        <observer name="hryvinskyi_error_reporting_config_save"
+                  instance="Hryvinskyi\ErrorReporting\Observer\ConfigSaveObserver"/>
+    </event>
+
+    <!-- Ensure configuration is exported on every admin controller dispatch -->
+    <event name="controller_action_predispatch">
+        <observer name="hryvinskyi_error_reporting_ensure_config_exported"
+                  instance="Hryvinskyi\ErrorReporting\Observer\EnsureConfigExportedObserver"/>
+    </event>
+</config>

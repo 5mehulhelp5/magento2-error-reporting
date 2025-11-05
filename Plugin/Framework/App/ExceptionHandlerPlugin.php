@@ -69,11 +69,11 @@ class ExceptionHandlerPlugin
             $this->throttleService->recordError($errorHash, $errorData);
 
             // Check if error should be reported (filtering)
-            if (!$this->errorFilter->shouldReport($exception, $severity)) {
+            if (!$this->errorFilter->shouldReport($exception, $request, $severity)) {
                 $this->logger->debug('Error filtered out, not reporting', [
                     'error_hash' => $errorHash,
                     'severity' => $severity,
-                    'reason' => 'blacklist or severity level'
+                    'reason' => 'blacklist / whitelist or severity level'
                 ]);
                 return [$bootstrap, $exception, $response, $request];
             }

@@ -26,6 +26,8 @@ class MagentoConfig implements ConfigInterface
     private const XML_PATH_CLIENT_NOTIFICATION_ENABLED = 'hryvinskyi_error_reporting/general/client_notification_enabled';
     private const XML_PATH_EMAIL_SENDER = 'hryvinskyi_error_reporting/general/email_sender';
     private const XML_PATH_ERROR_BLACKLIST = 'hryvinskyi_error_reporting/filtering/error_blacklist';
+    private const XML_PATH_FILTERING_EXCLUDE_CONTROLLERS = 'hryvinskyi_error_reporting/filtering/exclude_controllers';
+    private const XML_PATH_FILTERING_INCLUDE_ONLY_CONTROLLERS = 'hryvinskyi_error_reporting/filtering/include_only_controllers';
     private const XML_PATH_THROTTLE_PERIOD = 'hryvinskyi_error_reporting/throttling/period_minutes';
     private const XML_PATH_MAX_ERRORS_PER_PERIOD = 'hryvinskyi_error_reporting/throttling/max_errors_per_period';
     private const XML_PATH_INCLUDE_DETAILED_INFO = 'hryvinskyi_error_reporting/details/include_detailed_info';
@@ -103,6 +105,28 @@ class MagentoConfig implements ConfigInterface
     {
         return (string)$this->scopeConfig->getValue(
             self::XML_PATH_ERROR_BLACKLIST,
+            ScopeInterface::SCOPE_STORE
+        );
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getExcludeControllers(): string
+    {
+        return (string)$this->scopeConfig->getValue(
+            self::XML_PATH_FILTERING_EXCLUDE_CONTROLLERS,
+            ScopeInterface::SCOPE_STORE
+        );
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getIncludeOnlyControllers(): string
+    {
+        return (string)$this->scopeConfig->getValue(
+            self::XML_PATH_FILTERING_INCLUDE_ONLY_CONTROLLERS,
             ScopeInterface::SCOPE_STORE
         );
     }

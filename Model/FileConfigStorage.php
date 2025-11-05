@@ -38,10 +38,10 @@ class FileConfigStorage implements ConfigStorageInterface
     /**
      * @inheritDoc
      */
-    public function exportConfig(): bool
+    public function exportConfig(): ?array
     {
         try {
-            $config = [
+            return [
                 'enabled' => $this->sourceConfig->isEnabled(),
                 'developer_emails' => $this->sourceConfig->getDeveloperEmails(),
                 'client_notification_enabled' => $this->sourceConfig->isClientNotificationEnabled(),
@@ -53,15 +53,15 @@ class FileConfigStorage implements ConfigStorageInterface
                 'include_detailed_info' => $this->sourceConfig->includeDetailedInfo(),
                 'include_post_data' => $this->sourceConfig->includePostData(),
                 'minimum_severity' => $this->sourceConfig->getMinimumSeverityLevel(),
-                'exported_at' => time(),
+                'excluded_controllers' => $this->sourceConfig->getExcludeControllers(),
+                'included_only_controllers' => $this->sourceConfig->getIncludeOnlyControllers(),
             ];
-
-            return $this->writeConfig($config);
         } catch (\Exception $e) {
             $this->logger->error('Failed to export error reporting configuration from database', [
                 'error' => $e->getMessage()
             ]);
-            return false;
+
+            return null;
         }
     }
 

@@ -56,6 +56,20 @@ interface ConfigInterface
     public function getErrorBlacklist(): string;
 
     /**
+     * Get excluded controllers (one per line)
+     *
+     * @return string
+     */
+    public function getExcludeControllers(): string;
+
+    /**
+     * Get included controllers (one per line)
+     *
+     * @return string
+     */
+    public function getIncludeOnlyControllers(): string;
+
+    /**
      * Get throttle period in minutes
      *
      * @return int

@@ -8,6 +8,8 @@ declare(strict_types=1);
 
 namespace Hryvinskyi\ErrorReporting\Api;
 
+use Magento\Framework\App\Request\Http as RequestHttp;
+
 /**
  * Interface for filtering errors based on blacklist and severity
  */
@@ -17,18 +19,25 @@ interface ErrorFilterInterface
      * Check if error should be reported
      *
      * @param \Exception $exception
+     * @param RequestHttp $request
      * @param string $severity
-     * @param int|null $storeId
      * @return bool
      */
-    public function shouldReport(\Exception $exception, string $severity, ?int $storeId = null): bool;
+    public function shouldReport(\Exception $exception, RequestHttp $request, string $severity): bool;
 
     /**
      * Check if error matches blacklist patterns
      *
-     * @param \Exception $exception
-     * @param int|null $storeId
+     * @param \Throwable $exception
      * @return bool
      */
-    public function isBlacklisted(\Exception $exception, ?int $storeId = null): bool;
+    public function isBlacklistedException(\Throwable $exception): bool;
+
+    /**
+     * Check if controller is blacklisted based on configuration
+     *
+     * @param RequestHttp $request
+     * @return bool
+     */
+    public function isBlacklistedController(RequestHttp $request): bool;
 }

@@ -9,20 +9,20 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
     <system>
-        <section id="hryvinskyi_error_reporting" translate="label" type="text" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
+        <section id="hryvinskyi_error_reporting" translate="label" type="text" sortOrder="100" showInDefault="1" showInWebsite="0" showInStore="0">
             <label>Error Reporting</label>
             <tab>advanced</tab>
             <resource>Hryvinskyi_ErrorReporting::config</resource>
 
             <!-- General Settings -->
-            <group id="general" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+            <group id="general" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
                 <label>General Settings</label>
-                <field id="enabled" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="enabled" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Enable Error Reporting</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <comment>Enable or disable automatic error notifications</comment>
                 </field>
-                <field id="developer_emails" translate="label comment" type="textarea" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="developer_emails" translate="label comment" type="textarea" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Developer Email Addresses</label>
                     <comment>Comma-separated list of developer email addresses to receive detailed error reports</comment>
                     <validate>validate-emails</validate>
@@ -30,7 +30,7 @@
                         <field id="enabled">1</field>
                     </depends>
                 </field>
-                <field id="client_notification_enabled" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="client_notification_enabled" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Enable Client Notifications</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <comment>Send simplified notifications to client contacts</comment>
@@ -38,7 +38,7 @@
                         <field id="enabled">1</field>
                     </depends>
                 </field>
-                <field id="client_emails" translate="label comment" type="textarea" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="client_emails" translate="label comment" type="textarea" sortOrder="40" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Client Email Addresses</label>
                     <comment>Comma-separated list of client email addresses to receive simplified error notifications</comment>
                     <validate>validate-emails</validate>
@@ -47,7 +47,7 @@
                         <field id="client_notification_enabled">1</field>
                     </depends>
                 </field>
-                <field id="email_sender" translate="label comment" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="email_sender" translate="label comment" type="select" sortOrder="50" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Email Sender</label>
                     <source_model>Magento\Config\Model\Config\Source\Email\Identity</source_model>
                     <comment>Email identity to use as sender</comment>
@@ -58,9 +58,9 @@
             </group>
 
             <!-- Filtering Settings -->
-            <group id="filtering" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+            <group id="filtering" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
                 <label>Error Filtering</label>
-                <field id="minimum_severity" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="minimum_severity" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Minimum Severity Level</label>
                     <source_model>Hryvinskyi\ErrorReporting\Model\Config\Source\SeverityLevel</source_model>
                     <comment>Only report errors at or above this severity level</comment>
@@ -68,7 +68,7 @@
                         <field id="hryvinskyi_error_reporting/general/enabled">1</field>
                     </depends>
                 </field>
-                <field id="error_blacklist" translate="label comment" type="textarea" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="error_blacklist" translate="label comment" type="textarea" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Error Blacklist</label>
                     <comment><![CDATA[One pattern per line. Errors matching these patterns will not trigger notifications.<br/>
 Supports plain text matching (case-insensitive) and regex patterns (wrap in delimiters like /pattern/).<br/>
@@ -83,12 +83,20 @@ Connection refused]]></comment>
                         <field id="hryvinskyi_error_reporting/general/enabled">1</field>
                     </depends>
                 </field>
+                <field id="exclude_controllers"  translate="label comment" type="textarea" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Exclude controllers</label>
+                    <comment>Controller paths to exclude from error reporting (one per line, e.g. "adminhtml/system_config/save" or regex "/^adminhtml\/customer\/.*/i" or "catalog_product_view")</comment>
+                </field>
+                <field id="include_only_controllers" translate="label comment" type="textarea" sortOrder="40" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Include Only These Controllers</label>
+                    <comment>Only report errors for these controller paths (one per line). Accepts exact paths (e.g. "catalog/product/view", action name "catalog_product_view", or regex (wrap in delimiters, e.g. /^catalog\/product\/.*/i). Leave empty to include all controllers.</comment>
+                </field>
             </group>
 
             <!-- Throttling Settings -->
-            <group id="throttling" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+            <group id="throttling" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="0">
                 <label>Spam Prevention / Throttling</label>
-                <field id="period_minutes" translate="label comment" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="period_minutes" translate="label comment" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Throttle Period (Minutes)</label>
                     <comment>Minimum time between notifications for the same error (in minutes)</comment>
                     <validate>validate-number validate-greater-than-zero</validate>
@@ -96,7 +104,7 @@ Connection refused]]></comment>
                         <field id="hryvinskyi_error_reporting/general/enabled">1</field>
                     </depends>
                 </field>
-                <field id="max_errors_per_period" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="max_errors_per_period" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Max Notifications Per Period</label>
                     <comment>Maximum number of notifications to send for the same error within the throttle period</comment>
                     <validate>validate-number validate-greater-than-zero</validate>
@@ -107,9 +115,9 @@ Connection refused]]></comment>
             </group>
 
             <!-- Detail Settings -->
-            <group id="details" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+            <group id="details" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="0" showInStore="0">
                 <label>Error Details</label>
-                <field id="include_detailed_info" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="include_detailed_info" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Include Detailed Information</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <comment>Include stack trace, environment info, and previous exceptions in developer emails</comment>
@@ -117,7 +125,7 @@ Connection refused]]></comment>
                         <field id="hryvinskyi_error_reporting/general/enabled">1</field>
                     </depends>
                 </field>
-                <field id="include_post_data" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="include_post_data" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Include POST Data</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <comment>Include POST request data in error reports (sensitive fields are automatically redacted)</comment>

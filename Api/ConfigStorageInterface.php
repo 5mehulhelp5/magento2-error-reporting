@@ -14,14 +14,14 @@ namespace Hryvinskyi\ErrorReporting\Api;
 interface ConfigStorageInterface
 {
     /**
-     * Export configuration to filesystem from database
+     * Export configuration
      *
-     * @return bool
+     * @return null|array
      */
-    public function exportConfig(): bool;
+    public function exportConfig(): ?array;
 
     /**
-     * Save configuration directly to filesystem (bypassing database)
+     * Save configuration
      *
      * @param array<string, mixed> $config
      * @return bool

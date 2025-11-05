@@ -79,6 +79,22 @@ class FileConfig implements ConfigInterface
     /**
      * @inheritDoc
      */
+    public function getExcludeControllers(): string
+    {
+        return (string)$this->getConfigValue('excluded_controllers', '');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getIncludeOnlyControllers(): string
+    {
+        return (string)$this->getConfigValue('included_only_controllers', '');
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function getThrottlePeriod(): int
     {
         return (int)$this->getConfigValue('throttle_period', 60);

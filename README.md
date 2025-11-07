@@ -2,6 +2,17 @@
 
 Advanced error notification system for Magento 2 with spam prevention, and comprehensive error tracking.
 
+## Table of Contents
+
+- [Features](#features)
+- [Configuration](#configuration)
+- [Error Information Captured](#error-information-captured)
+  - [For Developers (Detailed Email)](#for-developers-detailed-email)
+  - [For Clients (Simplified Email)](#for-clients-simplified-email)
+- [Installation](#installation)
+- [Author](#author)
+- [Support](#support)
+
 ## Features
 
 ### Core Features

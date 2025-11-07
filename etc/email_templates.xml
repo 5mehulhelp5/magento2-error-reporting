@@ -13,11 +13,11 @@
               file="error_report_developer.html"
               type="html"
               module="Hryvinskyi_ErrorReporting"
-              area="frontend"/>
+              area="adminhtml"/>
     <template id="hryvinskyi_error_reporting_client"
               label="Error Report - Client"
               file="error_report_client.html"
               type="html"
               module="Hryvinskyi_ErrorReporting"
-              area="frontend"/>
+              area="adminhtml"/>
 </config>

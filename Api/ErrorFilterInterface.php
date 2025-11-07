@@ -24,20 +24,4 @@ interface ErrorFilterInterface
      * @return bool
      */
     public function shouldReport(\Exception $exception, RequestHttp $request, string $severity): bool;
-
-    /**
-     * Check if error matches blacklist patterns
-     *
-     * @param \Throwable $exception
-     * @return bool
-     */
-    public function isBlacklistedException(\Throwable $exception): bool;
-
-    /**
-     * Check if controller is blacklisted based on configuration
-     *
-     * @param RequestHttp $request
-     * @return bool
-     */
-    public function isBlacklistedController(RequestHttp $request): bool;
 }

@@ -22,6 +22,36 @@
                 type="Hryvinskyi\ErrorReporting\Model\ThrottleService"/>
     <!-- Default Implementations for config - FileConfig has zero dependencies -->
     <preference for="Hryvinskyi\ErrorReporting\Api\ConfigInterface" type="Hryvinskyi\ErrorReporting\Model\FileConfig"/>
+    <preference for="Hryvinskyi\ErrorReporting\Api\Data\FilterContextInterface" type="Hryvinskyi\ErrorReporting\Model\Data\FilterContext"/>
+    <preference for="Hryvinskyi\ErrorReporting\Api\Filter\PatternMatcherInterface" type="Hryvinskyi\ErrorReporting\Model\Filter\PatternMatcher"/>
+    <preference for="Hryvinskyi\ErrorReporting\Api\Collector\ErrorHashGeneratorInterface" type="Hryvinskyi\ErrorReporting\Model\Collector\ErrorHashGenerator"/>
+    <preference for="Hryvinskyi\ErrorReporting\Api\Collector\SeverityResolverInterface" type="Hryvinskyi\ErrorReporting\Model\Collector\SeverityResolver"/>
+    <preference for="Hryvinskyi\ErrorReporting\Api\Collector\RequestDataCollectorInterface" type="Hryvinskyi\ErrorReporting\Model\Collector\RequestDataCollector"/>
+    <preference for="Hryvinskyi\ErrorReporting\Api\Collector\DataSanitizerInterface" type="Hryvinskyi\ErrorReporting\Model\Collector\DataSanitizer"/>
+
+    <!-- Use proxy for CustomerSession to avoid session initialization during error handling -->
+    <type name="Hryvinskyi\ErrorReporting\Model\ErrorDataCollector">
+        <arguments>
+            <argument name="customerSession" xsi:type="object">Magento\Customer\Model\Session\Proxy</argument>
+        </arguments>
+    </type>
+
+    <!-- Error Filter Configuration - Composite Pattern with Configurable Filters -->
+    <type name="Hryvinskyi\ErrorReporting\Model\ErrorFilter">
+        <arguments>
+            <argument name="filters" xsi:type="array">
+                <!-- Order matters: filters are applied in sequence -->
+                <item name="exception_filter" xsi:type="object">Hryvinskyi\ErrorReporting\Model\Filter\ExceptionFilter</item>
+                <item name="controller_filter" xsi:type="object">Hryvinskyi\ErrorReporting\Model\Filter\ControllerFilter</item>
+                <item name="severity_filter" xsi:type="object">Hryvinskyi\ErrorReporting\Model\Filter\SeverityFilter</item>
+                <!-- Add custom filters here in your project's di.xml:
+                <item name="area_filter" xsi:type="object">YourVendor\YourModule\Model\Filter\AreaFilter</item>
+                <item name="custom_filter" xsi:type="object">YourVendor\YourModule\Model\Filter\CustomFilter</item>
+                -->
+            </argument>
+        </arguments>
+    </type>
+
     <type name="Hryvinskyi\ErrorReporting\Model\FileConfigStorage">
         <arguments>
             <argument name="sourceConfig" xsi:type="object">Hryvinskyi\ErrorReporting\Model\MagentoConfig</argument>
@@ -32,6 +62,13 @@
     <type name="Magento\Framework\App\ExceptionHandler">
         <plugin name="hryvinskyi_error_reporting_exception_handler"
                 type="Hryvinskyi\ErrorReporting\Plugin\Framework\App\ExceptionHandlerPlugin"
+                sortOrder="10"/>
+    </type>
+
+    <!-- Catch all errors including Throwables - similar to Yireo_Whoops -->
+    <type name="Magento\Framework\App\Http">
+        <plugin name="hryvinskyi_error_reporting_http"
+                type="Hryvinskyi\ErrorReporting\Plugin\Framework\App\HttpPlugin"
                 sortOrder="10"/>
     </type>
 

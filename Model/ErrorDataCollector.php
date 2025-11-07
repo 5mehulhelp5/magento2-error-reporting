@@ -9,34 +9,57 @@ declare(strict_types=1);
 namespace Hryvinskyi\ErrorReporting\Model;
 
 use Hryvinskyi\Base\Helper\VarDumper;
+use Hryvinskyi\ErrorReporting\Api\Collector\DataSanitizerInterface;
+use Hryvinskyi\ErrorReporting\Api\Collector\ErrorHashGeneratorInterface;
+use Hryvinskyi\ErrorReporting\Api\Collector\RequestDataCollectorInterface;
+use Hryvinskyi\ErrorReporting\Api\Collector\SeverityResolverInterface;
 use Hryvinskyi\ErrorReporting\Api\ConfigInterface;
 use Hryvinskyi\ErrorReporting\Api\ErrorDataCollectorInterface;
+use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\App\Bootstrap;
 use Magento\Framework\App\Request\Http as RequestHttp;
-use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Store\Model\StoreManager;
 
 /**
  * Service for collecting comprehensive error data
+ *
+ * Coordinates multiple collector services following Single Responsibility Principle.
+ * Each collector service handles one specific aspect of data collection.
  */
 class ErrorDataCollector implements ErrorDataCollectorInterface
 {
+    /**
+     * @param ConfigInterface $config
+     * @param StoreManager $storeManager
+     * @param ErrorHashGeneratorInterface $errorHashGenerator
+     * @param SeverityResolverInterface $severityResolver
+     * @param RequestDataCollectorInterface $requestDataCollector
+     * @param DataSanitizerInterface $dataSanitizer
+     * @param CustomerSession $customerSession
+     */
     public function __construct(
         private readonly ConfigInterface $config,
         private readonly StoreManager $storeManager,
-        private readonly array $sensitiveFields = [],
+        private readonly ErrorHashGeneratorInterface $errorHashGenerator,
+        private readonly SeverityResolverInterface $severityResolver,
+        private readonly RequestDataCollectorInterface $requestDataCollector,
+        private readonly DataSanitizerInterface $dataSanitizer,
+        private readonly CustomerSession $customerSession,
     ) {
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function collect(
         \Exception $exception,
         RequestHttp $request,
         Bootstrap $bootstrap
     ): array {
-        $data = [
+        // Collect request and client data using dedicated service
+        $requestData = $this->requestDataCollector->collect($request);
+
+        $data = array_merge([
             // Basic error information
             'error' => [
                 'message' => $exception->getMessage(),
@@ -48,46 +71,17 @@ class ErrorDataCollector implements ErrorDataCollectorInterface
                 'severity' => $this->getSeverityLevel($exception),
             ],
 
-            // Request information
-            'request' => [
-                'url' => $request->getScheme() . '://' . $request->getHttpHost() . $request->getRequestUri(),
-                'method' => $request->getMethod(),
-                'is_ajax' => $request->isAjax(),
-                'is_secure' => $request->isSecure(),
-            ],
-
-            // Client information
-            'client' => [
-                'ip' => $request->getClientIp(),
-                'user_agent' => $request->getHeader('User-Agent'),
-                'referer' => $request->getHeader('Referer'),
-            ],
-
             // Timestamp
             'timestamp' => date('Y-m-d H:i:s'),
             'timestamp_formatted' => date('F j, Y g:i:s A T'),
 
-            // Store context (simplified - no database dependency)
-            'frontend_store' => [
-                'name' => $request->getHttpHost(),
-                'code' => 'default',
-                'base_url' => $request->getScheme() . '://' . $request->getHttpHost(),
-                // Get store code from request (MAGE_STORE_CODE) if available
-                'mage_run_code' => $request->getParam(StoreManager::PARAM_RUN_CODE, 'default'),
-                'mage_run_type' => $request->getParam(StoreManager::PARAM_RUN_TYPE, 'default'),
-            ],
+            // Store context
+            'frontend_store' => $this->collectStoreData($request, $requestData['area'] ?? 'frontend'),
 
-            // Area
-            'area' => $this->detectArea($request),
-
-            // User context (simplified - no session dependency)
-            'user' => [
-                'type' => 'guest', // Default, can be enhanced if sessions available
-                'name' => null,
-                'email' => null,
-            ],
+            // User context
+            'user' => $this->collectCustomerData($requestData['area'] ?? 'frontend'),
             'post_data' => null
-        ];
+        ], $requestData); // Merge request data from collector
 
         // Add detailed information if enabled
         if ($this->config->includeDetailedInfo()) {
@@ -100,109 +94,32 @@ class ErrorDataCollector implements ErrorDataCollectorInterface
             }
 
             // Server environment
-            $data['environment'] = [
-                'php_version' => PHP_VERSION,
-                'memory_usage' => $this->formatBytes(memory_get_usage(true)),
-                'memory_peak' => $this->formatBytes(memory_get_peak_usage(true)),
-                'memory_limit' => ini_get('memory_limit'),
-            ];
+            $data['environment'] = $this->collectEnvironmentData();
         }
 
         // Add POST data if enabled (sanitized)
-        if ($this->config->includePostData() && isset($_POST)) {
-            $data['post_data'] = VarDumper::dumpAsString($this->sanitizePostData($_POST), 10, true);
-        }
-
-        try {
-            $store = $this->storeManager->getStore();
-            $data['frontend_store']['name'] = $store->getName();
-            $data['frontend_store']['code'] = $store->getCode();
-            $data['frontend_store']['base_url'] = $store->getBaseUrl();
-        } catch (\Throwable $e) {
+        if ($this->config->includePostData() && isset($_POST) && !empty($_POST)) {
+            $sanitized = $this->dataSanitizer->sanitize($_POST);
+            $data['post_data'] = VarDumper::dumpAsString($sanitized, 10, true);
         }
 
         return $data;
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function getErrorHash(\Exception $exception): string
     {
-        // Create hash from exception class, message, file, and line
-        // Same errors will have the same hash for grouping
-        $hashData = sprintf(
-            '%s:%s:%s:%d',
-            get_class($exception),
-            $exception->getMessage(),
-            $exception->getFile(),
-            $exception->getLine()
-        );
-
-        return hash('sha256', $hashData);
+        return $this->errorHashGenerator->generate($exception);
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function getSeverityLevel(\Exception $exception): string
     {
-        // Determine severity based on exception type
-        $exceptionClass = get_class($exception);
-
-        // Critical errors
-        $criticalExceptions = [
-            'Error',
-            'ParseError',
-            'TypeError',
-            'PDOException',
-        ];
-
-        foreach ($criticalExceptions as $critical) {
-            if (strpos($exceptionClass, $critical) !== false) {
-                return 'critical';
-            }
-        }
-
-        // Warning level exceptions
-        $warningExceptions = [
-            'NoSuchEntity',
-            'NotFoundException',
-        ];
-
-        foreach ($warningExceptions as $warning) {
-            if (strpos($exceptionClass, $warning) !== false) {
-                return 'warning';
-            }
-        }
-
-        // Default to error
-        return 'error';
-    }
-
-    /**
-     * Detect application area from request
-     *
-     * @param RequestHttp $request
-     * @return string
-     */
-    private function detectArea(RequestHttp $request): string
-    {
-        $path = $request->getRequestUri();
-
-        if (strpos($path, '/admin/') !== false) {
-            return 'adminhtml';
-        }
-
-        if (strpos($path, '/rest/') !== false) {
-            return 'webapi_rest';
-        }
-
-        if (strpos($path, '/soap/') !== false) {
-            return 'webapi_soap';
-        }
-
-        return 'frontend';
+        return $this->severityResolver->resolve($exception);
     }
 
     /**
@@ -230,44 +147,93 @@ class ErrorDataCollector implements ErrorDataCollectorInterface
     }
 
     /**
-     * Sanitize POST data to remove sensitive information
+     * Collect store data with fallback
      *
-     * @param array<string, mixed> $postData
+     * @param RequestHttp $request
+     * @param string $area
      * @return array<string, mixed>
      */
-    private function sanitizePostData(array $postData): array
+    private function collectStoreData(RequestHttp $request, string $area): array
     {
-        $defaultSensitiveFields = [
-            'password',
-            'password_confirmation',
-            'current_password',
-            'new_password',
-            'cc_number',
-            'cc_cid',
-            'cvv',
-            'card_number',
-            'api_key',
-            'secret',
-            'token',
+        $storeData = [
+            'name' => $request->getHttpHost(),
+            'code' => 'default',
+            'base_url' => sprintf('%s://%s', $request->getScheme(), $request->getHttpHost()),
+            'mage_run_code' => $request->getParam(StoreManager::PARAM_RUN_CODE),
+            'mage_run_type' => $request->getParam(StoreManager::PARAM_RUN_TYPE),
         ];
 
-        $sensitiveFields = array_merge($defaultSensitiveFields, $this->sensitiveFields);
+        // Try to get actual store information based on current request context
+        try {
+            // Get the current store from the request context
+            $store = $this->storeManager->getStore();
 
-        foreach ($postData as $key => $value) {
-            $lowerKey = strtolower((string)$key);
-            foreach ($sensitiveFields as $sensitiveField) {
-                if (str_contains((string)$lowerKey, (string)$sensitiveField)) {
-                    $postData[$key] = '***REDACTED***';
-                    break;
-                }
+            // For admin area, explicitly use admin store
+            if ($area === 'adminhtml') {
+                $store = $this->storeManager->getStore(\Magento\Store\Model\Store::ADMIN_CODE);
             }
 
-            if (is_array($value)) {
-                $postData[$key] = $this->sanitizePostData($value);
-            }
+            $storeData['id'] = $store->getId();
+            $storeData['name'] = $store->getName();
+            $storeData['code'] = $store->getCode();
+            $storeData['base_url'] = $store->getBaseUrl();
+        } catch (\Throwable $e) {
+            // Use fallback data if store manager fails
         }
 
-        return $postData;
+        return $storeData;
+    }
+
+    /**
+     * Collect customer data with fallback
+     *
+     * @param string $area
+     * @return array<string, mixed>
+     */
+    private function collectCustomerData(string $area): array
+    {
+        $customerData = [
+            'type' => 'guest',
+            'id' => null,
+            'name' => null,
+            'email' => null,
+        ];
+
+        // Only try to get customer data for frontend area
+        if ($area !== 'frontend') {
+            return $customerData;
+        }
+
+        // Try to get actual customer information from session
+        try {
+            if ($this->customerSession->isLoggedIn()) {
+                $customer = $this->customerSession->getCustomer();
+
+                $customerData['type'] = 'customer';
+                $customerData['id'] = $customer->getId();
+                $customerData['name'] = $customer->getName();
+                $customerData['email'] = $customer->getEmail();
+            }
+        } catch (\Throwable $e) {
+            // Use fallback data if customer session fails
+        }
+
+        return $customerData;
+    }
+
+    /**
+     * Collect server environment data
+     *
+     * @return array<string, mixed>
+     */
+    private function collectEnvironmentData(): array
+    {
+        return [
+            'php_version' => PHP_VERSION,
+            'memory_usage' => $this->formatBytes(memory_get_usage(true)),
+            'memory_peak' => $this->formatBytes(memory_get_peak_usage(true)),
+            'memory_limit' => ini_get('memory_limit'),
+        ];
     }
 
     /**
@@ -288,3 +254,4 @@ class ErrorDataCollector implements ErrorDataCollectorInterface
         );
     }
 }
+

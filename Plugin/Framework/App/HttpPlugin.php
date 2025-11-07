@@ -10,6 +10,7 @@ namespace Hryvinskyi\ErrorReporting\Plugin\Framework\App;
 
 use Closure;
 use Exception;
+use Hryvinskyi\ErrorReporting\Exception\ThrowableWrapperException;
 use Magento\Framework\App\Http;
 use Throwable;
 
@@ -42,11 +43,7 @@ class HttpPlugin
                  *
                  * @see \Magento\Framework\App\Bootstrap::run
                  */
-                throw new Exception(
-                    'Error during launch: ' . $e->getMessage(),
-                    (int)$e->getCode(),
-                    $e
-                );
+                throw new ThrowableWrapperException($e);
             }
         }
     }

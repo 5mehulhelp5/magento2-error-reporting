@@ -50,7 +50,7 @@ Usage:
   php bin/magento hryvinskyi:error-reporting:export-config
 
 The configuration will be saved to:
-  var/error_reporting/error_reporting_config.json
+  var/error_reporting_config.json
 HELP
         );
 
@@ -68,7 +68,7 @@ HELP
             $result = $this->configStorage->exportConfig();
 
             if ($result) {
-                $output->writeln('<info>✓ Configuration exported successfully to var/error_reporting/error_reporting_config.json</info>');
+                $output->writeln('<info>✓ Configuration exported successfully to var/error_reporting_config.json</info>');
                 $output->writeln('<comment>Error reporting will now use this configuration if database becomes unavailable.</comment>');
                 return Command::SUCCESS;
             } else {

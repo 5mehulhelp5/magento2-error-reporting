@@ -2,13 +2,6 @@
 
 Advanced error notification system for Magento 2 with spam prevention, and comprehensive error tracking.
 
-[![Latest Stable Version](https://poser.pugx.org/hryvinskyi/magento2-error-reporting/v/stable)](https://packagist.org/packages/hryvinskyi/magento2-error-reporting)
-[![Total Downloads](https://poser.pugx.org/hryvinskyi/magento2-error-reporting/downloads)](https://packagist.org/packages/hryvinskyi/magento2-error-reporting)
-[![PayPal donate button](https://img.shields.io/badge/paypal-donate-yellow.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=volodymyr%40hryvinskyi%2ecom&lc=UA&item_name=Magento%202%20Error%20Email%20Notification%20Module&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted "Donate once-off to this project using Paypal")
-[![Latest Unstable Version](https://poser.pugx.org/hryvinskyi/magento2-error-reporting/v/unstable)](https://packagist.org/packages/hryvinskyi/magento2-error-reporting)
-[![License](https://poser.pugx.org/hryvinskyi/magento2-error-reporting/license)](https://packagist.org/packages/hryvinskyi/magento2-error-reporting)
-
-
 ## Features
 
 ### Core Features
@@ -21,6 +14,11 @@ Advanced error notification system for Magento 2 with spam prevention, and compr
 - **Configuration Failover** - Automatically exports config to filesystem config (no database dependency)
 - **Sensitive Data Protection** - Automatically redacts passwords, credit cards, and other sensitive data
 - **Zero External Dependencies** - Works even when database, Redis, or other services are down to ensure error reporting is reliable
+
+### Configuration
+
+Go to `Stores > Configuration > Advanced > Error Reporting` to configure the module settings:
+![configuration.jpg](docs/images/configuration.jpg)
 
 ### Error Information Captured
 

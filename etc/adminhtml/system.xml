@@ -22,52 +22,11 @@
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <comment>Enable or disable automatic error notifications</comment>
                 </field>
-                <field id="developer_emails" translate="label comment" type="textarea" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
-                    <label>Developer Email Addresses</label>
-                    <comment>Comma-separated list of developer email addresses to receive detailed error reports</comment>
-                    <validate>validate-emails</validate>
-                    <depends>
-                        <field id="enabled">1</field>
-                    </depends>
-                </field>
-                <field id="client_notification_enabled" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="0">
-                    <label>Enable Client Notifications</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <comment>Send simplified notifications to client contacts</comment>
-                    <depends>
-                        <field id="enabled">1</field>
-                    </depends>
-                </field>
-                <field id="client_emails" translate="label comment" type="textarea" sortOrder="40" showInDefault="1" showInWebsite="0" showInStore="0">
-                    <label>Client Email Addresses</label>
-                    <comment>Comma-separated list of client email addresses to receive simplified error notifications</comment>
-                    <validate>validate-emails</validate>
-                    <depends>
-                        <field id="enabled">1</field>
-                        <field id="client_notification_enabled">1</field>
-                    </depends>
-                </field>
-                <field id="email_sender" translate="label comment" type="select" sortOrder="50" showInDefault="1" showInWebsite="0" showInStore="0">
-                    <label>Email Sender</label>
-                    <source_model>Magento\Config\Model\Config\Source\Email\Identity</source_model>
-                    <comment>Email identity to use as sender</comment>
-                    <depends>
-                        <field id="enabled">1</field>
-                    </depends>
-                </field>
             </group>
 
             <!-- Filtering Settings -->
             <group id="filtering" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
                 <label>Error Filtering</label>
-                <field id="minimum_severity" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
-                    <label>Minimum Severity Level</label>
-                    <source_model>Hryvinskyi\ErrorReporting\Model\Config\Source\SeverityLevel</source_model>
-                    <comment>Only report errors at or above this severity level</comment>
-                    <depends>
-                        <field id="hryvinskyi_error_reporting/general/enabled">1</field>
-                    </depends>
-                </field>
                 <field id="error_blacklist" translate="label comment" type="textarea" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Error Blacklist</label>
                     <comment><![CDATA[One pattern per line. Errors matching these patterns will not trigger notifications.<br/>
@@ -131,6 +90,218 @@ Connection refused]]></comment>
                     <comment>Include POST request data in error reports (sensitive fields are automatically redacted)</comment>
                     <depends>
                         <field id="hryvinskyi_error_reporting/general/enabled">1</field>
+                    </depends>
+                </field>
+            </group>
+
+            <!-- Email Notifications -->
+            <group id="email" translate="label" type="text" sortOrder="15" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>Email Notifications</label>
+                <field id="enabled" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Enable Email Notifications</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Send error notifications via email</comment>
+                    <depends>
+                        <field id="hryvinskyi_error_reporting/general/enabled">1</field>
+                    </depends>
+                </field>
+                <field id="minimum_severity" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Minimum Severity Level</label>
+                    <source_model>Hryvinskyi\ErrorReporting\Model\Config\Source\SeverityLevel</source_model>
+                    <comment>Only send email notifications for errors at or above this severity level</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="developer_emails" translate="label comment" type="textarea" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Developer Email Addresses</label>
+                    <comment>Comma-separated list of developer email addresses to receive detailed error reports</comment>
+                    <validate>validate-emails</validate>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="client_notification_enabled" translate="label comment" type="select" sortOrder="40" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Enable Client Notifications</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Send simplified notifications to client contacts</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="client_emails" translate="label comment" type="textarea" sortOrder="50" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Client Email Addresses</label>
+                    <comment>Comma-separated list of client email addresses to receive simplified error notifications</comment>
+                    <validate>validate-emails</validate>
+                    <depends>
+                        <field id="enabled">1</field>
+                        <field id="client_notification_enabled">1</field>
+                    </depends>
+                </field>
+                <field id="email_sender" translate="label comment" type="select" sortOrder="60" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Email Sender</label>
+                    <source_model>Magento\Config\Model\Config\Source\Email\Identity</source_model>
+                    <comment>Email identity to use as sender</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+            </group>
+
+            <!-- Slack Notifications -->
+            <group id="slack" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>Slack Notifications</label>
+                <comment><![CDATA[Send error notifications to Slack channels via incoming webhooks. Get your webhook URL from Slack: Workspace Settings > Apps > Incoming Webhooks]]></comment>
+                <field id="enabled" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Enable Slack Notifications</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Send error notifications to Slack</comment>
+                    <depends>
+                        <field id="hryvinskyi_error_reporting/general/enabled">1</field>
+                    </depends>
+                </field>
+                <field id="minimum_severity" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Minimum Severity</label>
+                    <source_model>Hryvinskyi\ErrorReporting\Model\Config\Source\SeverityLevel</source_model>
+                    <comment>Only send notifications for errors at or above this severity level</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="webhook_url" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Webhook URL</label>
+                    <comment><![CDATA[Your Slack incoming webhook URL (e.g., https://hooks.slack.com/services/XXX/YYY/ZZZ)]]></comment>
+                    <validate>required-entry validate-url</validate>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="channel" translate="label comment" type="text" sortOrder="40" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Channel Override</label>
+                    <comment><![CDATA[Optional: Override default channel (e.g., #errors or @username). Leave empty to use webhook default.]]></comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="username" translate="label comment" type="text" sortOrder="50" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Bot Username</label>
+                    <comment>Display name for the bot in Slack</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+            </group>
+
+            <!-- Microsoft Teams Notifications -->
+            <group id="teams" translate="label" type="text" sortOrder="60" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>Microsoft Teams Notifications</label>
+                <comment><![CDATA[Send error notifications to Microsoft Teams channels via incoming webhooks. Get your webhook URL from Teams: Channel > Connectors > Incoming Webhook]]></comment>
+                <field id="enabled" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Enable Teams Notifications</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Send error notifications to Microsoft Teams</comment>
+                    <depends>
+                        <field id="hryvinskyi_error_reporting/general/enabled">1</field>
+                    </depends>
+                </field>
+                <field id="minimum_severity" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Minimum Severity</label>
+                    <source_model>Hryvinskyi\ErrorReporting\Model\Config\Source\SeverityLevel</source_model>
+                    <comment>Only send notifications for errors at or above this severity level</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="webhook_url" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Webhook URL</label>
+                    <comment><![CDATA[Your Microsoft Teams incoming webhook URL (e.g., https://outlook.office.com/webhook/...)]]></comment>
+                    <validate>required-entry validate-url</validate>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+            </group>
+
+            <!-- Telegram Notifications -->
+            <group id="telegram" translate="label" type="text" sortOrder="70" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>Telegram Notifications</label>
+                <comment><![CDATA[Send error notifications to Telegram channels or chats via Telegram Bot API. Create a bot with <a href="https://t.me/botfather" target="_blank">@BotFather</a> to get your bot token, then add the bot to your channel/chat and get the chat ID.]]></comment>
+                <field id="enabled" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Enable Telegram Notifications</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Send error notifications to Telegram</comment>
+                    <depends>
+                        <field id="hryvinskyi_error_reporting/general/enabled">1</field>
+                    </depends>
+                </field>
+                <field id="minimum_severity" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Minimum Severity</label>
+                    <source_model>Hryvinskyi\ErrorReporting\Model\Config\Source\SeverityLevel</source_model>
+                    <comment>Only send notifications for errors at or above this severity level</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="bot_token" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Bot Token</label>
+                    <comment><![CDATA[Your Telegram bot token from <a href="https://t.me/botfather" target="_blank">@BotFather</a> (e.g., 123456789:ABCdefGHIjklMNOpqrsTUVwxyz)]]></comment>
+                    <validate>required-entry</validate>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="chat_id" translate="label comment" type="text" sortOrder="40" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Chat ID</label>
+                    <comment><![CDATA[The chat ID or channel username where messages will be sent (e.g., -1001234567890 for channels, or @channelname). To get chat ID, add the bot to your chat and send a message, then use <a href="https://api.telegram.org/bot<YourBOTToken>/getUpdates" target="_blank">getUpdates</a> method.]]></comment>
+                    <validate>required-entry</validate>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+            </group>
+
+            <!-- WhatsApp Notifications -->
+            <group id="whatsapp" translate="label" type="text" sortOrder="80" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>WhatsApp Notifications</label>
+                <comment><![CDATA[Send error notifications to WhatsApp via WhatsApp Business Cloud API. Get started at <a href="https://developers.facebook.com/docs/whatsapp/cloud-api/get-started" target="_blank">WhatsApp Cloud API</a>. You'll need a Facebook Business Account, WhatsApp Business Account, and access to the Cloud API.]]></comment>
+                <field id="enabled" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Enable WhatsApp Notifications</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Send error notifications to WhatsApp</comment>
+                    <depends>
+                        <field id="hryvinskyi_error_reporting/general/enabled">1</field>
+                    </depends>
+                </field>
+                <field id="minimum_severity" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Minimum Severity</label>
+                    <source_model>Hryvinskyi\ErrorReporting\Model\Config\Source\SeverityLevel</source_model>
+                    <comment>Only send notifications for errors at or above this severity level</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="access_token" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Access Token</label>
+                    <comment><![CDATA[Your WhatsApp Business Account access token from Facebook Developer Portal. Generate it in the <a href="https://developers.facebook.com/apps" target="_blank">Meta for Developers</a> dashboard under your app's WhatsApp > API Setup section.]]></comment>
+                    <validate>required-entry</validate>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="phone_number_id" translate="label comment" type="text" sortOrder="40" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Phone Number ID</label>
+                    <comment><![CDATA[Your WhatsApp Business Phone Number ID (not the phone number itself). Find this in the WhatsApp > API Setup section of your app in Meta for Developers dashboard.]]></comment>
+                    <validate>required-entry validate-digits</validate>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="recipient_phone" translate="label comment" type="text" sortOrder="50" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Recipient Phone Number</label>
+                    <comment><![CDATA[The phone number to receive error notifications in international format without + or spaces (e.g., 1234567890). Must be registered with WhatsApp.]]></comment>
+                    <validate>required-entry validate-digits</validate>
+                    <depends>
+                        <field id="enabled">1</field>
                     </depends>
                 </field>
             </group>

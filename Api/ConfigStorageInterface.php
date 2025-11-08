@@ -16,14 +16,60 @@ interface ConfigStorageInterface
     /**
      * Export configuration
      *
-     * @return null|array
+     * @return array{
+     *     enabled: bool,
+     *     error_blacklist: string,
+     *     excluded_controllers: string,
+     *     included_only_controllers: string,
+     *     throttle_period: int,
+     *     max_errors_per_period: int,
+     *     include_detailed_info: bool,
+     *     include_post_data: bool,
+     *     email_enabled: bool,
+     *     email_minimum_severity: string,
+     *     developer_emails: string,
+     *     client_notification_enabled: bool,
+     *     client_emails: string,
+     *     email_sender: string,
+     *     slack_enabled: bool,
+     *     slack_webhook_url: string,
+     *     slack_channel: string,
+     *     slack_username: string,
+     *     slack_minimum_severity: string,
+     *     teams_enabled: bool,
+     *     teams_webhook_url: string,
+     *     teams_minimum_severity: string
+     * }|null
      */
     public function exportConfig(): ?array;
 
     /**
      * Save configuration
      *
-     * @param array<string, mixed> $config
+     * @param array{
+     *     enabled: bool,
+     *     error_blacklist: string,
+     *     excluded_controllers: string,
+     *     included_only_controllers: string,
+     *     throttle_period: int,
+     *     max_errors_per_period: int,
+     *     include_detailed_info: bool,
+     *     include_post_data: bool,
+     *     email_enabled: bool,
+     *     email_minimum_severity: string,
+     *     developer_emails: string,
+     *     client_notification_enabled: bool,
+     *     client_emails: string,
+     *     email_sender: string,
+     *     slack_enabled: bool,
+     *     slack_webhook_url: string,
+     *     slack_channel: string,
+     *     slack_username: string,
+     *     slack_minimum_severity: string,
+     *     teams_enabled: bool,
+     *     teams_webhook_url: string,
+     *     teams_minimum_severity: string
+     * } $config
      * @return bool
      */
     public function saveConfig(array $config): bool;
@@ -31,7 +77,31 @@ interface ConfigStorageInterface
     /**
      * Get configuration from storage
      *
-     * @return array<string, mixed>|null
+     * @return array{
+     *     enabled: bool,
+     *     error_blacklist: string,
+     *     excluded_controllers: string,
+     *     included_only_controllers: string,
+     *     throttle_period: int,
+     *     max_errors_per_period: int,
+     *     include_detailed_info: bool,
+     *     include_post_data: bool,
+     *     email_enabled: bool,
+     *     email_minimum_severity: string,
+     *     developer_emails: string,
+     *     client_notification_enabled: bool,
+     *     client_emails: string,
+     *     email_sender: string,
+     *     slack_enabled: bool,
+     *     slack_webhook_url: string,
+     *     slack_channel: string,
+     *     slack_username: string,
+     *     slack_minimum_severity: string,
+     *     teams_enabled: bool,
+     *     teams_webhook_url: string,
+     *     teams_minimum_severity: string,
+     *     exported_at?: int
+     * }|null
      */
     public function getConfig(): ?array;
 

@@ -45,6 +45,8 @@ class HttpPlugin
                  */
                 throw new ThrowableWrapperException($e);
             }
+
+            throw $e;
         }
     }
 }

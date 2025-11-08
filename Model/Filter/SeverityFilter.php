@@ -8,19 +8,20 @@ declare(strict_types=1);
 
 namespace Hryvinskyi\ErrorReporting\Model\Filter;
 
-use Hryvinskyi\ErrorReporting\Api\ConfigInterface;
-use Hryvinskyi\ErrorReporting\Api\Data\FilterContextInterface;
-use Hryvinskyi\ErrorReporting\Api\Filter\FilterInterface;
+use Hryvinskyi\ErrorReporting\Api\Filter\SeverityFilterInterface;
 
 /**
- * Filter errors based on severity level configuration
+ * Centralized severity checking service for notification handlers
  *
- * Filters out errors below the configured minimum severity level.
+ * Provides severity level comparison logic used across all notification handlers.
+ * Follows Single Responsibility Principle - only handles severity comparison.
  */
-class SeverityFilter implements FilterInterface
+class SeverityFilter implements SeverityFilterInterface
 {
     /**
      * Severity level mapping to numeric values for comparison
+     *
+     * @var array<string, int>
      */
     private const SEVERITY_LEVELS = [
         'warning' => 1,
@@ -29,25 +30,13 @@ class SeverityFilter implements FilterInterface
     ];
 
     /**
-     * @param ConfigInterface $config
-     */
-    public function __construct(
-        private readonly ConfigInterface $config
-    ) {
-    }
-
-    /**
      * {@inheritDoc}
      */
-    public function shouldFilter(FilterContextInterface $context): bool
+    public function meetsMinimumSeverity(string $errorSeverity, string $minSeverity): bool
     {
-        $severity = $context->getSeverity();
-        $minSeverity = $this->config->getMinimumSeverityLevel();
+        $errorLevel = self::SEVERITY_LEVELS[$errorSeverity] ?? self::SEVERITY_LEVELS['error'];
+        $minLevel = self::SEVERITY_LEVELS[$minSeverity] ?? self::SEVERITY_LEVELS['error'];
 
-        $severityValue = self::SEVERITY_LEVELS[$severity] ?? self::SEVERITY_LEVELS['error'];
-        $minSeverityValue = self::SEVERITY_LEVELS[$minSeverity] ?? self::SEVERITY_LEVELS['error'];
-
-        // Filter out if severity is below minimum level
-        return $severityValue < $minSeverityValue;
+        return $errorLevel >= $minLevel;
     }
 }

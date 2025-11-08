@@ -39,6 +39,22 @@ class FileConfig implements ConfigInterface
     /**
      * @inheritDoc
      */
+    public function isEmailEnabled(): bool
+    {
+        return (bool)$this->getConfigValue('email_enabled', false);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getEmailMinimumSeverity(): string
+    {
+        return (string)$this->getConfigValue('email_minimum_severity', 'error');
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function getDeveloperEmails(): string
     {
         return (string)$this->getConfigValue('developer_emails', '');
@@ -127,9 +143,137 @@ class FileConfig implements ConfigInterface
     /**
      * @inheritDoc
      */
-    public function getMinimumSeverityLevel(): string
+    public function isSlackEnabled(): bool
     {
-        return (string)$this->getConfigValue('minimum_severity', 'error');
+        return (bool)$this->getConfigValue('slack_enabled', false);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getSlackWebhookUrl(): string
+    {
+        return (string)$this->getConfigValue('slack_webhook_url', '');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getSlackChannel(): string
+    {
+        return (string)$this->getConfigValue('slack_channel', '');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getSlackUsername(): string
+    {
+        return (string)$this->getConfigValue('slack_username', 'Magento Error Reporter');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getSlackMinimumSeverity(): string
+    {
+        return (string)$this->getConfigValue('slack_minimum_severity', 'critical');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function isTeamsEnabled(): bool
+    {
+        return (bool)$this->getConfigValue('teams_enabled', false);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getTeamsWebhookUrl(): string
+    {
+        return (string)$this->getConfigValue('teams_webhook_url', '');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getTeamsMinimumSeverity(): string
+    {
+        return (string)$this->getConfigValue('teams_minimum_severity', 'critical');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function isTelegramEnabled(): bool
+    {
+        return (bool)$this->getConfigValue('telegram_enabled', false);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getTelegramBotToken(): string
+    {
+        return (string)$this->getConfigValue('telegram_bot_token', '');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getTelegramChatId(): string
+    {
+        return (string)$this->getConfigValue('telegram_chat_id', '');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getTelegramMinimumSeverity(): string
+    {
+        return (string)$this->getConfigValue('telegram_minimum_severity', 'critical');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function isWhatsAppEnabled(): bool
+    {
+        return (bool)$this->getConfigValue('whatsapp_enabled', false);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getWhatsAppAccessToken(): string
+    {
+        return (string)$this->getConfigValue('whatsapp_access_token', '');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getWhatsAppPhoneNumberId(): string
+    {
+        return (string)$this->getConfigValue('whatsapp_phone_number_id', '');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getWhatsAppRecipientPhone(): string
+    {
+        return (string)$this->getConfigValue('whatsapp_recipient_phone', '');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getWhatsAppMinimumSeverity(): string
+    {
+        return (string)$this->getConfigValue('whatsapp_minimum_severity', 'critical');
     }
 
     /**

@@ -9,9 +9,9 @@ declare(strict_types=1);
 namespace Hryvinskyi\ErrorReporting\Plugin\Framework\App;
 
 use Hryvinskyi\ErrorReporting\Api\ConfigInterface;
-use Hryvinskyi\ErrorReporting\Api\EmailSenderInterface;
 use Hryvinskyi\ErrorReporting\Api\ErrorDataCollectorInterface;
 use Hryvinskyi\ErrorReporting\Api\ErrorFilterInterface;
+use Hryvinskyi\ErrorReporting\Api\Notification\NotificationDispatcherInterface;
 use Hryvinskyi\ErrorReporting\Api\ThrottleServiceInterface;
 use Magento\Framework\App\Bootstrap;
 use Magento\Framework\App\ExceptionHandler;
@@ -22,16 +22,25 @@ use Psr\Log\LoggerInterface;
 /**
  * Plugin for Magento\Framework\App\ExceptionHandler
  *
- * Intercepts exception handling to send extended error reports via email
+ * Intercepts exception handling to send notifications via unified notification dispatcher
+ * Supports email (Magento Mail + PHP Sendmail fallback), Slack, Teams, and custom handlers
  */
 class ExceptionHandlerPlugin
 {
+    /**
+     * @param ConfigInterface $config
+     * @param ErrorDataCollectorInterface $errorDataCollector
+     * @param ErrorFilterInterface $errorFilter
+     * @param ThrottleServiceInterface $throttleService
+     * @param NotificationDispatcherInterface $notificationDispatcher
+     * @param LoggerInterface $logger
+     */
     public function __construct(
         private readonly ConfigInterface $config,
         private readonly ErrorDataCollectorInterface $errorDataCollector,
         private readonly ErrorFilterInterface $errorFilter,
         private readonly ThrottleServiceInterface $throttleService,
-        private readonly EmailSenderInterface $emailSender,
+        private readonly NotificationDispatcherInterface $notificationDispatcher,
         private readonly LoggerInterface $logger
     ) {
     }
@@ -44,7 +53,12 @@ class ExceptionHandlerPlugin
      * @param \Exception $exception
      * @param ResponseHttp $response
      * @param RequestHttp $request
-     * @return array
+     * @return array{
+     *     0: Bootstrap,
+     *     1: \Exception,
+     *     2: ResponseHttp,
+     *     3: RequestHttp
+     * }
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function beforeHandle(
@@ -87,17 +101,23 @@ class ExceptionHandlerPlugin
                 return [$bootstrap, $exception, $response, $request];
             }
 
-            // Send email notification
-            $emailSent = $this->emailSender->sendErrorNotification($errorData);
+            // Dispatch to all notification handlers (Email, Slack, Teams, etc.)
+            $notificationResults = $this->notificationDispatcher->dispatch($errorData);
 
-            if ($emailSent) {
-                // Mark as notified
+            // Log results and mark as notified if any handler succeeded
+            if (!empty(array_filter($notificationResults))) {
                 $this->throttleService->markAsNotified($errorHash);
 
-                $this->logger->info('Error notification sent successfully', [
+                $this->logger->info('Error notifications dispatched', [
                     'error_hash' => $errorHash,
                     'severity' => $severity,
-                    'error_type' => $errorData['error']['type'] ?? 'Unknown'
+                    'error_type' => $errorData['error']['type'] ?? 'Unknown',
+                    'handlers' => $notificationResults
+                ]);
+            } else {
+                $this->logger->warning('All notification handlers failed', [
+                    'error_hash' => $errorHash,
+                    'handlers' => $notificationResults
                 ]);
             }
         } catch (\Exception $e) {

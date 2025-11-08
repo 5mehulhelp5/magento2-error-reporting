@@ -126,7 +126,13 @@ class ErrorDataCollector implements ErrorDataCollectorInterface
      * Collect previous exceptions in chain
      *
      * @param \Throwable $exception
-     * @return array<int, array<string, mixed>>
+     * @return array<int, array{
+     *     index: int,
+     *     type: string,
+     *     message: string,
+     *     file: string,
+     *     line: int
+     * }>
      */
     private function collectPreviousExceptions(\Throwable $exception): array
     {
@@ -151,7 +157,14 @@ class ErrorDataCollector implements ErrorDataCollectorInterface
      *
      * @param RequestHttp $request
      * @param string $area
-     * @return array<string, mixed>
+     * @return array{
+     *     id?: int,
+     *     name: string,
+     *     code: string,
+     *     base_url: string,
+     *     mage_run_code: string|null,
+     *     mage_run_type: string|null
+     * }
      */
     private function collectStoreData(RequestHttp $request, string $area): array
     {
@@ -188,7 +201,12 @@ class ErrorDataCollector implements ErrorDataCollectorInterface
      * Collect customer data with fallback
      *
      * @param string $area
-     * @return array<string, mixed>
+     * @return array{
+     *     type: string,
+     *     id: int|null,
+     *     name: string|null,
+     *     email: string|null
+     * }
      */
     private function collectCustomerData(string $area): array
     {
@@ -224,7 +242,12 @@ class ErrorDataCollector implements ErrorDataCollectorInterface
     /**
      * Collect server environment data
      *
-     * @return array<string, mixed>
+     * @return array{
+     *     php_version: string,
+     *     memory_usage: string,
+     *     memory_peak: string,
+     *     memory_limit: string
+     * }
      */
     private function collectEnvironmentData(): array
     {

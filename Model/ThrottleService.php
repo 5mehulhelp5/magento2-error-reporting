@@ -145,7 +145,21 @@ class ThrottleService implements ThrottleServiceInterface
      * Get tracking data for error hash
      *
      * @param string $errorHash
-     * @return array<string, mixed>
+     * @return array{
+     *     error_hash: string,
+     *     error_type: string,
+     *     error_message: string,
+     *     error_file: string,
+     *     error_line: int,
+     *     severity: string,
+     *     store_id: int|null,
+     *     url: string|null,
+     *     occurrence_count: int,
+     *     first_seen_at: int,
+     *     last_seen_at: int,
+     *     notification_count: int,
+     *     last_notified_at: int|null
+     * }|array<empty, empty>
      */
     private function getTrackingData(string $errorHash): array
     {
@@ -168,7 +182,21 @@ class ThrottleService implements ThrottleServiceInterface
      * Save tracking data for error hash
      *
      * @param string $errorHash
-     * @param array<string, mixed> $data
+     * @param array{
+     *     error_hash: string,
+     *     error_type: string,
+     *     error_message: string,
+     *     error_file: string,
+     *     error_line: int,
+     *     severity: string,
+     *     store_id: int|null,
+     *     url: string|null,
+     *     occurrence_count: int,
+     *     first_seen_at: int,
+     *     last_seen_at: int,
+     *     notification_count: int,
+     *     last_notified_at: int|null
+     * } $data
      * @return void
      */
     private function saveTrackingData(string $errorHash, array $data): void

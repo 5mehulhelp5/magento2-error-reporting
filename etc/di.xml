@@ -8,26 +8,145 @@
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
-
     <!-- Service Interfaces - Filesystem-based implementations -->
-    <preference for="Hryvinskyi\ErrorReporting\Api\ConfigStorageInterface"
-                type="Hryvinskyi\ErrorReporting\Model\FileConfigStorage"/>
-    <preference for="Hryvinskyi\ErrorReporting\Api\ErrorDataCollectorInterface"
-                type="Hryvinskyi\ErrorReporting\Model\ErrorDataCollector"/>
-    <preference for="Hryvinskyi\ErrorReporting\Api\EmailSenderInterface"
-                type="Hryvinskyi\ErrorReporting\Model\EmailSender"/>
-    <preference for="Hryvinskyi\ErrorReporting\Api\ErrorFilterInterface"
-                type="Hryvinskyi\ErrorReporting\Model\ErrorFilter"/>
-    <preference for="Hryvinskyi\ErrorReporting\Api\ThrottleServiceInterface"
-                type="Hryvinskyi\ErrorReporting\Model\ThrottleService"/>
-    <!-- Default Implementations for config - FileConfig has zero dependencies -->
+    <preference for="Hryvinskyi\ErrorReporting\Api\ConfigStorageInterface" type="Hryvinskyi\ErrorReporting\Model\FileConfigStorage"/>
+    <preference for="Hryvinskyi\ErrorReporting\Api\ErrorDataCollectorInterface" type="Hryvinskyi\ErrorReporting\Model\ErrorDataCollector"/>
+    <preference for="Hryvinskyi\ErrorReporting\Api\ErrorFilterInterface" type="Hryvinskyi\ErrorReporting\Model\ErrorFilter"/>
+    <preference for="Hryvinskyi\ErrorReporting\Api\ThrottleServiceInterface" type="Hryvinskyi\ErrorReporting\Model\ThrottleService"/>
     <preference for="Hryvinskyi\ErrorReporting\Api\ConfigInterface" type="Hryvinskyi\ErrorReporting\Model\FileConfig"/>
     <preference for="Hryvinskyi\ErrorReporting\Api\Data\FilterContextInterface" type="Hryvinskyi\ErrorReporting\Model\Data\FilterContext"/>
     <preference for="Hryvinskyi\ErrorReporting\Api\Filter\PatternMatcherInterface" type="Hryvinskyi\ErrorReporting\Model\Filter\PatternMatcher"/>
+    <preference for="Hryvinskyi\ErrorReporting\Api\Filter\SeverityFilterInterface" type="Hryvinskyi\ErrorReporting\Model\Filter\SeverityFilter"/>
     <preference for="Hryvinskyi\ErrorReporting\Api\Collector\ErrorHashGeneratorInterface" type="Hryvinskyi\ErrorReporting\Model\Collector\ErrorHashGenerator"/>
     <preference for="Hryvinskyi\ErrorReporting\Api\Collector\SeverityResolverInterface" type="Hryvinskyi\ErrorReporting\Model\Collector\SeverityResolver"/>
     <preference for="Hryvinskyi\ErrorReporting\Api\Collector\RequestDataCollectorInterface" type="Hryvinskyi\ErrorReporting\Model\Collector\RequestDataCollector"/>
     <preference for="Hryvinskyi\ErrorReporting\Api\Collector\DataSanitizerInterface" type="Hryvinskyi\ErrorReporting\Model\Collector\DataSanitizer"/>
+
+    <!-- Notification System -->
+    <preference for="Hryvinskyi\ErrorReporting\Api\Notification\NotificationDispatcherInterface"
+                type="Hryvinskyi\ErrorReporting\Model\Notification\NotificationDispatcher"/>
+
+    <!-- Configure Symfony HTTP Client with timeout for SlackHandler -->
+    <virtualType name="Hryvinskyi\ErrorReporting\HttpClient\SlackHttpClient" type="Symfony\Component\HttpClient\Psr18Client">
+        <arguments>
+            <argument name="client" xsi:type="object">Symfony\Component\HttpClient\CurlHttpClient</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Hryvinskyi\ErrorReporting\HttpClient\SlackRequestFactory" type="Symfony\Component\HttpClient\Psr18Client">
+        <arguments>
+            <argument name="client" xsi:type="object">Symfony\Component\HttpClient\CurlHttpClient</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Hryvinskyi\ErrorReporting\HttpClient\SlackStreamFactory" type="Symfony\Component\HttpClient\Psr18Client">
+        <arguments>
+            <argument name="client" xsi:type="object">Symfony\Component\HttpClient\CurlHttpClient</argument>
+        </arguments>
+    </virtualType>
+    <type name="Hryvinskyi\ErrorReporting\Model\Notification\SlackHandler">
+        <arguments>
+            <argument name="httpClient" xsi:type="object">Hryvinskyi\ErrorReporting\HttpClient\SlackHttpClient</argument>
+            <argument name="requestFactory" xsi:type="object">Hryvinskyi\ErrorReporting\HttpClient\SlackRequestFactory</argument>
+            <argument name="streamFactory" xsi:type="object">Hryvinskyi\ErrorReporting\HttpClient\SlackStreamFactory</argument>
+        </arguments>
+    </type>
+    <!-- Configure Symfony HTTP Client with timeout for TeamsHandler -->
+    <virtualType name="Hryvinskyi\ErrorReporting\HttpClient\TeamsHttpClient" type="Symfony\Component\HttpClient\Psr18Client">
+        <arguments>
+            <argument name="client" xsi:type="object">Symfony\Component\HttpClient\CurlHttpClient</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Hryvinskyi\ErrorReporting\HttpClient\TeamsRequestFactory" type="Symfony\Component\HttpClient\Psr18Client">
+        <arguments>
+            <argument name="client" xsi:type="object">Symfony\Component\HttpClient\CurlHttpClient</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Hryvinskyi\ErrorReporting\HttpClient\TeamsStreamFactory" type="Symfony\Component\HttpClient\Psr18Client">
+        <arguments>
+            <argument name="client" xsi:type="object">Symfony\Component\HttpClient\CurlHttpClient</argument>
+        </arguments>
+    </virtualType>
+    <type name="Hryvinskyi\ErrorReporting\Model\Notification\TeamsHandler">
+        <arguments>
+            <argument name="httpClient" xsi:type="object">Hryvinskyi\ErrorReporting\HttpClient\TeamsHttpClient</argument>
+            <argument name="requestFactory" xsi:type="object">Hryvinskyi\ErrorReporting\HttpClient\TeamsRequestFactory</argument>
+            <argument name="streamFactory" xsi:type="object">Hryvinskyi\ErrorReporting\HttpClient\TeamsStreamFactory</argument>
+        </arguments>
+    </type>
+    <!-- Configure Symfony HTTP Client with timeout for TelegramHandler -->
+    <virtualType name="Hryvinskyi\ErrorReporting\HttpClient\TelegramHttpClient" type="Symfony\Component\HttpClient\Psr18Client">
+        <arguments>
+            <argument name="client" xsi:type="object">Symfony\Component\HttpClient\CurlHttpClient</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Hryvinskyi\ErrorReporting\HttpClient\TelegramRequestFactory" type="Symfony\Component\HttpClient\Psr18Client">
+        <arguments>
+            <argument name="client" xsi:type="object">Symfony\Component\HttpClient\CurlHttpClient</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Hryvinskyi\ErrorReporting\HttpClient\TelegramStreamFactory" type="Symfony\Component\HttpClient\Psr18Client">
+        <arguments>
+            <argument name="client" xsi:type="object">Symfony\Component\HttpClient\CurlHttpClient</argument>
+        </arguments>
+    </virtualType>
+    <type name="Hryvinskyi\ErrorReporting\Model\Notification\TelegramHandler">
+        <arguments>
+            <argument name="httpClient" xsi:type="object">Hryvinskyi\ErrorReporting\HttpClient\TelegramHttpClient</argument>
+            <argument name="requestFactory" xsi:type="object">Hryvinskyi\ErrorReporting\HttpClient\TelegramRequestFactory</argument>
+            <argument name="streamFactory" xsi:type="object">Hryvinskyi\ErrorReporting\HttpClient\TelegramStreamFactory</argument>
+        </arguments>
+    </type>
+    <!-- Configure Symfony HTTP Client with timeout for WhatsAppHandler -->
+    <virtualType name="Hryvinskyi\ErrorReporting\HttpClient\WhatsAppHttpClient" type="Symfony\Component\HttpClient\Psr18Client">
+        <arguments>
+            <argument name="client" xsi:type="object">Symfony\Component\HttpClient\CurlHttpClient</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Hryvinskyi\ErrorReporting\HttpClient\WhatsAppRequestFactory" type="Symfony\Component\HttpClient\Psr18Client">
+        <arguments>
+            <argument name="client" xsi:type="object">Symfony\Component\HttpClient\CurlHttpClient</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Hryvinskyi\ErrorReporting\HttpClient\WhatsAppStreamFactory" type="Symfony\Component\HttpClient\Psr18Client">
+        <arguments>
+            <argument name="client" xsi:type="object">Symfony\Component\HttpClient\CurlHttpClient</argument>
+        </arguments>
+    </virtualType>
+    <type name="Hryvinskyi\ErrorReporting\Model\Notification\WhatsAppHandler">
+        <arguments>
+            <argument name="httpClient" xsi:type="object">Hryvinskyi\ErrorReporting\HttpClient\WhatsAppHttpClient</argument>
+            <argument name="requestFactory" xsi:type="object">Hryvinskyi\ErrorReporting\HttpClient\WhatsAppRequestFactory</argument>
+            <argument name="streamFactory" xsi:type="object">Hryvinskyi\ErrorReporting\HttpClient\WhatsAppStreamFactory</argument>
+        </arguments>
+    </type>
+
+
+    <!-- Notification Handlers Configuration -->
+    <type name="Hryvinskyi\ErrorReporting\Model\Notification\NotificationDispatcher">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <!-- Email Handler with fallback configured -->
+                <item name="magento_mail" xsi:type="object" sortOrder="10">Hryvinskyi\ErrorReporting\Model\Notification\MagentoMailHandler</item>
+
+                <!-- External Notification Handlers -->
+                <item name="slack" xsi:type="object" sortOrder="20">Hryvinskyi\ErrorReporting\Model\Notification\SlackHandler</item>
+                <item name="teams" xsi:type="object" sortOrder="30">Hryvinskyi\ErrorReporting\Model\Notification\TeamsHandler</item>
+                <item name="telegram" xsi:type="object" sortOrder="40">Hryvinskyi\ErrorReporting\Model\Notification\TelegramHandler</item>
+                <item name="whatsapp" xsi:type="object" sortOrder="50">Hryvinskyi\ErrorReporting\Model\Notification\WhatsAppHandler</item>
+
+                <!-- Add custom handlers here:
+                <item name="pagerduty" xsi:type="object" sortOrder="40">YourVendor\YourModule\Model\Notification\PagerDutyHandler</item>
+                <item name="custom_webhook" xsi:type="object" sortOrder="50">YourVendor\YourModule\Model\Notification\CustomWebhookHandler</item>
+                -->
+            </argument>
+        </arguments>
+    </type>
+
+    <!-- Configure MagentoMailHandler with PhpSendmailHandler as fallback -->
+    <type name="Hryvinskyi\ErrorReporting\Model\Notification\MagentoMailHandler">
+        <arguments>
+            <argument name="fallbackHandler" xsi:type="object">Hryvinskyi\ErrorReporting\Model\Notification\PhpSendmailHandler</argument>
+        </arguments>
+    </type>
 
     <!-- Use proxy for CustomerSession to avoid session initialization during error handling -->
     <type name="Hryvinskyi\ErrorReporting\Model\ErrorDataCollector">
@@ -43,7 +162,6 @@
                 <!-- Order matters: filters are applied in sequence -->
                 <item name="exception_filter" xsi:type="object">Hryvinskyi\ErrorReporting\Model\Filter\ExceptionFilter</item>
                 <item name="controller_filter" xsi:type="object">Hryvinskyi\ErrorReporting\Model\Filter\ControllerFilter</item>
-                <item name="severity_filter" xsi:type="object">Hryvinskyi\ErrorReporting\Model\Filter\SeverityFilter</item>
                 <!-- Add custom filters here in your project's di.xml:
                 <item name="area_filter" xsi:type="object">YourVendor\YourModule\Model\Filter\AreaFilter</item>
                 <item name="custom_filter" xsi:type="object">YourVendor\YourModule\Model\Filter\CustomFilter</item>

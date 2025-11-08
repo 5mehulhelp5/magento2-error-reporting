@@ -19,7 +19,24 @@ interface RequestDataCollectorInterface
      * Collect HTTP request information
      *
      * @param RequestHttp $request
-     * @return array<string, mixed> Request data including URL, method, client info, etc.
+     * @return array{
+     *     request: array{
+     *         url: string,
+     *         method: string,
+     *         is_ajax: bool,
+     *         is_secure: bool,
+     *         controller_action?: string,
+     *         ip?: string,
+     *         user_agent?: string,
+     *         area?: string
+     *     },
+     *     client: array{
+     *         ip: string|false,
+     *         user_agent: string|false,
+     *         referer: string|false
+     *     },
+     *     area: string
+     * }
      */
     public function collect(RequestHttp $request): array;
 

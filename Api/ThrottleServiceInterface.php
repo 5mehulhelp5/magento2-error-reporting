@@ -26,7 +26,64 @@ interface ThrottleServiceInterface
      * Record error occurrence
      *
      * @param string $errorHash
-     * @param array<string, mixed> $errorData
+     * @param array{
+     *     error: array{
+     *         message: string,
+     *         type: string,
+     *         code: int|string,
+     *         file: string,
+     *         line: int,
+     *         hash: string,
+     *         severity: string
+     *     },
+     *     timestamp: string,
+     *     timestamp_formatted: string,
+     *     frontend_store: array{
+     *         id?: int,
+     *         name: string,
+     *         code: string,
+     *         base_url: string,
+     *         mage_run_code: string|null,
+     *         mage_run_type: string|null
+     *     },
+     *     user: array{
+     *         type: string,
+     *         id: int|null,
+     *         name: string|null,
+     *         email: string|null
+     *     },
+     *     request: array{
+     *         url: string,
+     *         method: string,
+     *         is_ajax: bool,
+     *         is_secure: bool,
+     *         controller_action?: string,
+     *         ip?: string,
+     *         user_agent?: string,
+     *         area?: string
+     *     },
+     *     client: array{
+     *         ip: string|false,
+     *         user_agent: string|false,
+     *         referer: string|false
+     *     },
+     *     area: string,
+     *     post_data: string|null,
+     *     trace?: string,
+     *     previous_exceptions?: array<int, array{
+     *         index: int,
+     *         type: string,
+     *         message: string,
+     *         file: string,
+     *         line: int
+     *     }>,
+     *     environment?: array{
+     *         php_version: string,
+     *         memory_usage: string,
+     *         memory_peak: string,
+     *         memory_limit: string
+     *     }
+     * } $errorData
      * @param int|null $storeId
      * @return void
      */

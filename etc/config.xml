@@ -12,13 +12,16 @@
         <hryvinskyi_error_reporting>
             <general>
                 <enabled>0</enabled>
+            </general>
+            <email>
+                <enabled>0</enabled>
+                <minimum_severity>error</minimum_severity>
                 <developer_emails></developer_emails>
                 <client_notification_enabled>0</client_notification_enabled>
                 <client_emails></client_emails>
                 <email_sender>general</email_sender>
-            </general>
+            </email>
             <filtering>
-                <minimum_severity>error</minimum_severity>
                 <error_blacklist></error_blacklist>
             </filtering>
             <throttling>

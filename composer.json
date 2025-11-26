@@ -2,7 +2,7 @@
     "name": "hryvinskyi/magento2-error-reporting",
     "description": "Advanced error notification system for Magento 2 with spam prevention, and comprehensive error tracking.",
     "type": "magento2-module",
-    "version": "1.0.5",
+    "version": "1.0.6",
     "license": "MIT",
     "authors": [
         {

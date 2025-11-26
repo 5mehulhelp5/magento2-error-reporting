@@ -20,6 +20,9 @@ use Throwable;
  */
 class ThrowableWrapperException extends Exception
 {
+    private string $originalClass;
+    private Throwable $originalThrowable;
+
     /**
      * Constructor
      *
@@ -30,15 +33,23 @@ class ThrowableWrapperException extends Exception
      */
     public function __construct(Throwable $throwable)
     {
+        $this->originalClass = get_class($throwable);
+        $this->originalThrowable = $throwable;
+
         parent::__construct(
             $throwable->getMessage(),
-            is_int($throwable->getCode()) ? $throwable->getCode() : 0
+            is_int($throwable->getCode()) ? $throwable->getCode() : 0,
+            $throwable->getPrevious()
         );
 
-        // Use reflection to override the final properties with original throwable's values
-        $this->overrideProperty('file', $throwable->getFile());
-        $this->overrideProperty('line', $throwable->getLine());
-        $this->overrideProperty('trace', $throwable->getTrace());
+        try {
+            // Use reflection to override the final properties with original throwable's values
+            $this->overrideProperty('file', $throwable->getFile());
+            $this->overrideProperty('line', $throwable->getLine());
+            $this->overrideProperty('trace', $throwable->getTrace());
+        } catch (\ReflectionException $e) {
+            // If reflection fails, we can't do much, so we silently ignore it
+        }
     }
 
     /**
@@ -47,6 +58,7 @@ class ThrowableWrapperException extends Exception
      * @param string $property Property name
      * @param mixed $value Property value
      * @return void
+     * @throws \ReflectionException
      */
     private function overrideProperty(string $property, mixed $value): void
     {
@@ -54,5 +66,25 @@ class ThrowableWrapperException extends Exception
         $reflectionProperty = $reflection->getProperty($property);
         $reflectionProperty->setAccessible(true);
         $reflectionProperty->setValue($this, $value);
+    }
+
+    /**
+     * Get the original class name of the wrapped throwable
+     *
+     * @return string
+     */
+    public function getOriginalClass(): string
+    {
+        return $this->originalClass;
+    }
+
+    /**
+     * Get the original throwable
+     *
+     * @return Throwable
+     */
+    public function getOriginalThrowable(): Throwable
+    {
+        return $this->originalThrowable;
     }
 }

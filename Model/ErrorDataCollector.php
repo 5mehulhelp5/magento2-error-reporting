@@ -15,6 +15,7 @@ use Hryvinskyi\ErrorReporting\Api\Collector\RequestDataCollectorInterface;
 use Hryvinskyi\ErrorReporting\Api\Collector\SeverityResolverInterface;
 use Hryvinskyi\ErrorReporting\Api\ConfigInterface;
 use Hryvinskyi\ErrorReporting\Api\ErrorDataCollectorInterface;
+use Hryvinskyi\ErrorReporting\Exception\ThrowableWrapperException;
 use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\App\Bootstrap;
 use Magento\Framework\App\Request\Http as RequestHttp;
@@ -59,11 +60,16 @@ class ErrorDataCollector implements ErrorDataCollectorInterface
         // Collect request and client data using dedicated service
         $requestData = $this->requestDataCollector->collect($request);
 
+        $errorType = get_class($exception);
+        if ($exception instanceof ThrowableWrapperException) {
+            $errorType = $exception->getOriginalClass();
+        }
+
         $data = array_merge([
             // Basic error information
             'error' => [
                 'message' => $exception->getMessage(),
-                'type' => get_class($exception),
+                'type' => $errorType,
                 'code' => $exception->getCode(),
                 'file' => $exception->getFile(),
                 'line' => $exception->getLine(),
